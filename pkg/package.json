@@ -32,5 +32,28 @@
     "cordis.patch.yml",
     "README.md"
   ],
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "cordis",
+    "plugin",
+    "document-preview",
+    "3d",
+    "stl",
+    "obj",
+    "ply",
+    "archive",
+    "zip",
+    "font",
+    "subtitle"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LeiYuXingZhou/dsh-preview-extra.git"
+  },
+  "homepage": "https://github.com/LeiYuXingZhou/dsh-preview-extra#readme",
+  "bugs": {
+    "url": "https://github.com/LeiYuXingZhou/dsh-preview-extra/issues"
+  },
   "license": "MIT"
 }
