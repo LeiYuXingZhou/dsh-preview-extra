@@ -9,8 +9,6 @@ Markdown / 代码 / 图片 / PDF / Office 预览共享同一套打开方式、�
 本仓库根目录就是可安装的 DSH 插件包（`package.json` + `lib/` + `cordis.patch.yml`），
 因此可以直接在 DSH 的「添加插件」里用 GitHub 仓库地址安装。
 
-> 交接文档：[`HANDOFF.md`](HANDOFF.md) —— 架构、契约、命令、已知限制与待办，给继续开发的 AI/开发者。
-
 ## 状态
 
 | 项目 | 结果 |
