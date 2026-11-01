@@ -1,0 +1,11 @@
+# dsh-preview-extra bundle patch
+#
+# Mount this package's Loader row. Installed through the official CLI
+# (`dsh plugin --profile <name> add dsh-preview-extra`) the command reconciles
+# `dsh.profile.bundles` and this patch layer mounts the row automatically.
+# A profile that mounts the plugin manually may copy the `insert` below into its
+# own cordis.patch.yml instead — do not do both (two rows would double-register
+# the same preview implementations).
+- insert:
+    - id: dsh-preview-extra
+      name: 'dsh-preview-extra'

@@ -1,0 +1,16 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# generated / local test artifacts
+_fixtures/
+_dsh_test/
+*.log
+*.tmp
+*.bak-before-preview-extra
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

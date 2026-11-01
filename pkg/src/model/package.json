@@ -1,0 +1,6 @@
+{
+  "name": "dsh-preview-model",
+  "private": true,
+  "type": "module",
+  "description": "DSH 文档预览的 3D 模型解析与 Canvas2D 渲染模块（无第三方依赖）。此 package.json 仅用于让 Node 把本目录的 .js 识别为 ESM；打包脚本可直接内联这些文件。"
+}

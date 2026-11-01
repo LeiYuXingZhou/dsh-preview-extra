@@ -1,0 +1,12 @@
+# Skeleton bundle patch — used only when the package is installed as a profile
+# bundle layer (package.json `dsh.bundle.patch`). A profile that mounts the
+# plugin by hand copies the `insert` below into its own
+# `$DSH_HOME/profiles/<name>/cordis.patch.yml` instead; never do both, because
+# two rows resolving to the same package name are a composition error
+# (dsh-client-modules/lib/index.js:871-877).
+#
+# `id` is the Loader entry id (any unique string). The *client module id* is the
+# package.json `name`, not this id (dsh-client-modules/lib/index.js:883-890).
+- insert:
+    - id: preview-extra-skeleton
+      name: 'dsh-preview-extra-skeleton'

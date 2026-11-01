@@ -1,0 +1,34 @@
+{
+  "name": "dsh-preview-extra-skeleton",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Minimal hand-written DSH client plugin skeleton (no build tools): one browser bundle served through dsh.client, one no-op host half.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "dsh": {
+    "manifestVersion": 1,
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-sidebar-documentpreview",
+        "@deepseek-ai/dsh-client-ui-renderer"
+      ]
+    }
+  },
+  "files": [
+    "lib/index.js",
+    "lib/client.js",
+    "cordis.patch.yml",
+    "README.md",
+    "verify.mjs"
+  ],
+  "license": "MIT"
+}
