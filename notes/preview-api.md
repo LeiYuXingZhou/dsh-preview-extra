@@ -1,7 +1,7 @@
 # DSH 右侧栏「文档预览」扩展 API 契约
 
 > 目的：为 `dsh-preview-extra` 新增 3D 模型（stl/obj/ply）与压缩包（zip/tar/gz…）预览，给出**能照着写代码**的契约。
-> 环境：DSH `0.2.0-rc.2`，只读官方包位于 `C:\Users\Administrator\.dsh\acl-runner\node_modules\@deepseek-ai\`。
+> 环境：DSH `0.2.0-rc.2`，只读官方包位于 `C:\Users\you\.dsh\acl-runner\node_modules\@deepseek-ai\`。
 > 结论全部来自逐行阅读发布产物 `lib/client.js`（带完整 JSDoc、行号稳定），未做浏览器运行时验证；本文所有 `file:line` 中的 `file` 见下方缩写表。
 
 ## 缩写与权威文件

@@ -45,12 +45,12 @@ bundle 是 classic script 且 `id === package.json name`、只注册一次、
 `dsh-client-ui-brand-official` 33/33 通过）：
 
 ```powershell
-& 'C:\Program Files\nodejs\node.exe' .\skeleton\verify.mjs 'C:\Users\Administrator\.dsh\acl-runner\node_modules\@deepseek-ai\dsh-client-ui-brand-official'
+& 'C:\Program Files\nodejs\node.exe' .\skeleton\verify.mjs 'C:\Users\you\.dsh\acl-runner\node_modules\@deepseek-ai\dsh-client-ui-brand-official'
 ```
 
 ## 2. 装进 desktop profile（**留给 lead / 用户执行**；本目录只写 workspace）
 
-运行中的 profile 是 `desktop`：`C:\Users\Administrator\.dsh\profiles\desktop\`，其
+运行中的 profile 是 `desktop`：`C:\Users\you\.dsh\profiles\desktop\`，其
 `package.json` 的 `dsh.profile.bundles` + `cordis.patch.yml` 决定启用行。往 profile
 写文件在 workspace 之外，本会话的 workspace-write 沙箱不允许，因此下面步骤要由
 lead 用更宽权限执行，或交给用户手动做。
@@ -59,13 +59,13 @@ lead 用更宽权限执行，或交给用户手动做。
 
 不需要把包复制进 `~/.dsh`，也不需要 pnpm；唯一改动是 profile patch 里加一条行。
 
-1. 在 `C:\Users\Administrator\.dsh\profiles\desktop\cordis.patch.yml` **末尾**追加
+1. 在 `C:\Users\you\.dsh\profiles\desktop\cordis.patch.yml` **末尾**追加
    （注意缩进：顶层数组项，`insert` 列表项用 4 空格）：
 
    ```yaml
    - insert:
        - id: preview-extra-skeleton
-         name: 'file:///C:/Users/Administrator/Documents/daily/skeleton/lib/index.js'
+         name: 'file:///C:/Users/you/Documents/daily/skeleton/lib/index.js'
    ```
 
    - `id` 是 Loader 条目 id，随便唯一即可；

@@ -138,7 +138,7 @@ const view = createModelView({ canvas, model, options: { wireframe: false, grid:
 
 ## 4. 测试
 
-命令（工作目录 `C:\Users\Administrator\Documents\daily`）：
+命令（工作目录 `C:\Users\you\Documents\daily`）：
 
 ```powershell
 & 'C:\Program Files\nodejs\node.exe' dsh-preview-extra/pkg/src/model/tests/run.js

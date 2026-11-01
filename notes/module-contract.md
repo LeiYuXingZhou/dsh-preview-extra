@@ -5,10 +5,10 @@
 >
 > 路径缩写（下文所有 `path:line` 的根）：
 >
-> - `$ACL` = `C:\Users\Administrator\.dsh\acl-runner\node_modules\@deepseek-ai`
-> - `$PROFILE` = `C:\Users\Administrator\.dsh\profiles\desktop`
+> - `$ACL` = `C:\Users\you\.dsh\acl-runner\node_modules\@deepseek-ai`
+> - `$PROFILE` = `C:\Users\you\.dsh\profiles\desktop`
 > - `$WEB` = `$ACL\dsh-web-frontend\dist\assets\index-5SrrfWpU.js`（外壳，压缩成 128 行；引用行号 + 字节偏移）
-> - `$PKG` = `C:\Users\Administrator\Documents\daily\dsh-preview-extra\pkg`（lead 的骨架）
+> - `$PKG` = `C:\Users\you\Documents\daily\dsh-preview-extra\pkg`（lead 的骨架）
 >
 > 配套产物：`skeleton/`（最小可跑包 + 校验器）、`notes/preview-api.md`（预览 API，task-1 产出）。
 
@@ -678,7 +678,7 @@ function apply(ctx) {
 
    ```powershell
    & 'C:\Program Files\nodejs\node.exe' .\skeleton\verify.mjs
-   & 'C:\Program Files\nodejs\node.exe' .\skeleton\verify.mjs 'C:\Users\Administrator\Documents\daily\dsh-preview-extra\pkg'
+   & 'C:\Program Files\nodejs\node.exe' .\skeleton\verify.mjs 'C:\Users\you\Documents\daily\dsh-preview-extra\pkg'
    ```
 
    本机实测：skeleton **37/37**、官方 `dsh-client-ui-brand-official` **33/33**、
@@ -753,20 +753,20 @@ function apply(ctx) {
   ```yaml
   - insert:
       - id: preview-extra-skeleton
-        name: 'file:///C:/Users/Administrator/Documents/daily/skeleton/lib/index.js'
+        name: 'file:///C:/Users/you/Documents/daily/skeleton/lib/index.js'
   ```
 
   更完整的 lead 操作序列（PowerShell，需对 `~/.dsh` 有写权限）：
 
   ```powershell
-  $patch = 'C:\Users\Administrator\.dsh\profiles\desktop\cordis.patch.yml'
+  $patch = 'C:\Users\you\.dsh\profiles\desktop\cordis.patch.yml'
   Copy-Item $patch "$patch.bak-preview-extra"          # 1. 备份
   Get-Content $patch | Select-String 'preview-extra'   # 2. 确认没有同名行（应为空）
   Add-Content $patch @'
 
   - insert:
       - id: preview-extra-skeleton
-        name: 'file:///C:/Users/Administrator/Documents/daily/skeleton/lib/index.js'
+        name: 'file:///C:/Users/you/Documents/daily/skeleton/lib/index.js'
   '@
   # 3. 保存后 2-3 秒，在页面 Console 看：
   #    [dsh-preview-extra-skeleton] client bundle applied (v0.0.1)

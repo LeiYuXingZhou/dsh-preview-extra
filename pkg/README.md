@@ -50,7 +50,7 @@ profile 的 `cordis.patch.yml` 被热重载，`dsh-client-hmr` 会把新的客�
 ```
 
 当前 `desktop` profile 的原始 patch 已备份为
-`C:\Users\Administrator\.dsh\profiles\desktop\cordis.patch.yml.bak-before-preview-extra`；
+`C:\Users\you\.dsh\profiles\desktop\cordis.patch.yml.bak-before-preview-extra`；
 如需彻底还原：
 
 ```powershell

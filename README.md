@@ -74,8 +74,8 @@ desktop profile 的原始 patch 备份：
 ## 测试用 DSH 实例（E2E）
 
 ```powershell
-$env:DSH_HOME = 'C:\Users\Administrator\Documents\daily\_dsh_test'
-& 'C:\Program Files\nodejs\node.exe' 'C:\Users\Administrator\.dsh\acl-runner\node_modules\@deepseek-ai\dsh\lib\bin.js' --profile test --no-open --port 1891
+$env:DSH_HOME = 'C:\Users\you\Documents\daily\_dsh_test'
+& 'C:\Program Files\nodejs\node.exe' 'C:\Users\you\.dsh\acl-runner\node_modules\@deepseek-ai\dsh\lib\bin.js' --profile test --no-open --port 1891
 # 终端会打印带 token 的 URL；无头 Chrome 已可用 CDP 驱动：
 & 'C:\Program Files\nodejs\node.exe' .\tools\cdp.mjs new "<带 token 的 URL>"
 & 'C:\Program Files\nodejs\node.exe' .\tools\cdp.mjs eval "document.body.innerText.slice(0,500)"
