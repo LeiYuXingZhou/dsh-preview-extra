@@ -444,7 +444,7 @@ loading: "bytes-complete", wrap: false
 ```
 
 ### 8.1 源码模块如何进 bundle（无构建工具的现实约束）
-仓库源码是 ESM（`pkg/src/**`），客户端 bundle 是 `__ModuleLoader__.load({id, factory})` + `require`。两种可落地方式：
+仓库源码是 ESM（`src/**`），客户端 bundle 是 `__ModuleLoader__.load({id, factory})` + `require`。两种可落地方式：
 
 1. **作者期拼接**：把 `src/model/*.js`、`src/archive/*.js` 去掉 `export`/`import` 后内联进 `lib/client.js` 的 factory 闭包（最简单，无运行时分块）。
 2. **包内 chunk**（官方 PDF/Excel 的做法）：`require.async("./client.model.js")`；chunk 自己注册 `__ModuleLoader__.load({ id: "<owner 包名>", chunk: "client.model.js", factory })`（证据：`DP/lib/client.js:4883`、`DP/lib/client.pdf.js:944-946`；加载规则 `MOD/lib/client.js:470-486`、`:707-741`，文件名必须匹配 `^client\.[A-Za-z0-9][A-Za-z0-9._-]*\.js$`，chunk 以 `ownerId/client.xxx.js` 为模块 id）。

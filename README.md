@@ -2,18 +2,36 @@
 
 给 DSH（DeepSeek Harness 0.2.0-rc.2）右侧栏的**文档预览**加 5 类格式族：
 **3D 模型（STL/OBJ/PLY）**、**压缩包（zip/tar/gz）**、**音视频**、**字体**、**字幕**。
-纯客户端插件、零第三方依赖、无网络；已安装进当前 `desktop` profile 并完成真实 GUI 端到端验证。
+纯客户端插件、零第三方依赖、无网络请求；所有预览都注册进内置的
+`@deepseek-ai/dsh-client-ui-sidebar-documentpreview` 文档 tab，与内置的
+Markdown / 代码 / 图片 / PDF / Office 预览共享同一套打开方式、路径头、刷新与「打开方式」菜单。
+
+本仓库根目录就是可安装的 DSH 插件包（`package.json` + `lib/` + `cordis.patch.yml`），
+因此可以直接在 DSH 的「添加插件」里用 GitHub 仓库地址安装。
 
 ## 状态
 
 | 项目 | 结果 |
 | --- | --- |
-| 构建产物 | `pkg/lib/client.js`（约 230 KiB，15 个内部模块，单文件 classic script） |
+| 构建产物 | `lib/client.js`（约 230 KiB，15 个内部模块，单文件 classic script） |
 | 契约静态校验 | `skeleton/verify.mjs` → **34/34** |
 | 组装后冒烟（假 React + 假 Cordis ctx） | `tools/smoke.mjs` → 全部通过（5 个 body 用真实 fixture 渲染） |
 | 解析器单测 | 3D **38/38**、压缩包 **28/28** |
 | 真实 GUI E2E（无头 Chrome + CDP） | STL 3D、ZIP 条目树 + 条目文本、TTF 字体样张、WAV 播放器、SRT 字幕、7z 不支持提示 —— 全部正常，截图见 `shots/` |
-| 当前 desktop profile | 已安装（`~/.dsh/profiles/desktop`），客户端 bundle 已由运行中的 DSH 在 `/plugins` 提供，页面刷新即可用 |
+
+## 新增支持的格式
+
+| 类别 | 后缀 | 预览内容 |
+| --- | --- | --- |
+| 3D 模型 | `stl`（ASCII/二进制）、`obj`、`ply`（ASCII / binary_little_endian） | Canvas2D 软件渲染：拖拽旋转、滚轮缩放、右键/Shift 平移、双击复位、线框开关、包围盒/三角形/顶点统计；>30 万三角形自动抽样降级 |
+| 压缩包 | `zip`、`jar`、`war`、`apk`、`tar`、`gz`、`tgz`、`tar.gz` | 条目树（名称/大小/时间/方法），点击条目查看文本（带行号，最多 200KB）、图片、或二进制说明；GBK 文件名兜底；防 zip bomb 限额 |
+| 压缩包（仅识别） | `7z`、`rar`、`xz`、`bz2`、`zst` | 显示格式与"请先解压为 zip/tar"的提示（浏览器端没有对应解压 API） |
+| 音频 | `mp3`、`wav`、`ogg`、`oga`、`m4a`、`aac`、`flac`、`opus` | 原生 `<audio>` 播放器；显示大小/MIME |
+| 视频 | `mp4`、`webm`、`m4v`、`mov`、`mkv` | 原生 `<video>` 播放器；显示大小/MIME |
+| 字体 | `ttf`、`otf`、`woff`、`woff2` | FontFace 加载后的样张：中英文 pangram、大小写字母表、标点、字号阶梯 |
+| 字幕 | `srt`、`vtt`、`ass`、`ssa` | 时间轴字幕列表（起止时间 + 文本）、条数/编码/总时长，可切换原始文本 |
+
+打开方式：右侧栏「文件」tab 里点任意文件；聊天里的文件卡片、交付物卡片也会走同一预览。
 
 ## 截图（真实 GUI，无头 Chrome + CDP 驱动）
 
@@ -33,7 +51,15 @@
 
 ```
 dsh-preview-extra/
-  pkg/                  ← 可安装的插件包（package.json + lib + src + cordis.patch.yml + README）
+  package.json          ← 插件包清单：dsh.client 声明（platform=web、exports["./client"]、inject 提示）
+  cordis.patch.yml      ← bundle patch：安装后自动插入 Loader 行
+  lib/index.js          ← 宿主半侧：no-op cordis 插件（全部逻辑在浏览器侧）
+  lib/client.js         ← 构建产物（scripts/build-client.mjs 生成，不要手改）
+  src/client/main.js    ← 浏览器入口：注册 5 个 preview + keyed body + locale + 样式
+  src/ui/views.js       ← 5 个预览组件 + 中英文案 + CSS + previewDefinitions
+  src/model/            ← STL/OBJ/PLY 解析 + Canvas2D 软件渲染器（纯 ESM，无 DOM 顶层依赖）
+  src/archive/          ← zip/tar/gzip 解析 + 魔数识别 + 限额（纯 ESM，无 Node API）
+  scripts/build-client.mjs ← 手写"打包器"：把 src/** 的 ESM 拼成 __ModuleLoader__.load 的 factory
   scripts/install.mjs   ← 安装/卸载到任意 profile（复制包 + 追加 patch 行）
   tools/smoke.mjs       ← 无浏览器冒烟：加载真实 bundle 并渲染 5 个 body
   tools/cdp.mjs         ← 无头 Chrome CDP 驱动（导航/求值/截图）
@@ -47,6 +73,36 @@ dsh-preview-extra/
 `_fixtures/`（样例文件）与 `_dsh_test/`（隔离测试用 DSH_HOME）属于本地测试产物，已在 `.gitignore` 中排除，
 需要时用 `tools/fixtures-gen.mjs` 重新生成。
 
+## 通过 DSH 安装
+
+DSH 的「设置 → 插件 → 添加插件」支持**包名 / GitHub 仓库地址 / 本地目录路径**三种来源。本仓库根目录
+就是包，因此：
+
+1. 打开 DSH → 设置 → 插件 → **添加插件**；
+2. 粘贴 GitHub 仓库地址：
+
+   ```
+   https://github.com/LeiYuXingZhou/dsh-preview-extra
+   ```
+
+3. 点「安装」。装完后 profile 的 `cordis.patch.yml` 会由本包的 `cordis.patch.yml`（`dsh.bundle.patch`）
+   自动挂载 Loader 行，页面刷新即生效（不需要重启 DSH）。
+
+本机注意事项：
+
+- 当前网络直连 `github.com:443` 不通，需要给 git 配代理后再装：`git config --global http.proxy http://127.0.0.1:7877`
+- 或者直接用**本地目录路径**安装（绝对路径，指向本仓库根目录）：
+
+  ```
+  C:\Users\Administrator\Documents\daily\dsh-preview-extra
+  ```
+
+- 也可以手动安装（本仓库自带脚本，复制包 + 追加 patch 行，幂等）：
+
+  ```powershell
+  & 'C:\Program Files\nodejs\node.exe' .\scripts\install.mjs --profile-dir "$env:USERPROFILE\.dsh\profiles\desktop"
+  ```
+
 ## 快速使用
 
 1. 在 DSH 右侧栏点「文件」tab（或聊天里的文件/交付物卡片）；
@@ -54,22 +110,44 @@ dsh-preview-extra/
    `.mp3`/`.wav`/`.mp4`/`.webm`、`.ttf`/`.otf`/`.woff2`、`.srt`/`.vtt`/`.ass`；
 3. `.7z`/`.rar`/`.xz`/`.bz2`/`.zst` 会显示"暂不支持，请先解压为 zip/tar"的提示。
 
-> `.cpp` / `.h` / `.hpp` / `.cc` / `.cxx` 等 C/C++ 后缀**内置代码预览本来就支持**（带语法高亮），
-> 本插件没有重复注册它们。
-
-## 重新构建 / 安装 / 回滚
+## 重新构建 / 手动安装 / 回滚
 
 ```powershell
 $node = 'C:\Program Files\nodejs\node.exe'
-& $node .\pkg\scripts\build-client.mjs                    # 改过 src 后重新打包
-& $node .\tools\smoke.mjs                                 # 冒烟
-& $node .\skeleton\verify.mjs .\pkg                       # 契约校验
+& $node .\scripts\build-client.mjs                       # 改过 src 后重新打包
+& $node .\tools\smoke.mjs                                # 组装后冒烟
+& $node .\skeleton\verify.mjs .                          # 契约静态校验（34/34）
 & $node .\scripts\install.mjs --profile-dir "$env:USERPROFILE\.dsh\profiles\desktop"           # 安装
 & $node .\scripts\install.mjs --profile-dir "$env:USERPROFILE\.dsh\profiles\desktop" --uninstall # 卸载
 ```
 
-desktop profile 的原始 patch 备份：
-`~/.dsh/profiles/desktop/cordis.patch.yml.bak-before-preview-extra`。
+`desktop` profile 的原始 patch 备份：`~/.dsh/profiles/desktop/cordis.patch.yml.bak-before-preview-extra`。
+
+## 开发
+
+常用命令：
+
+```powershell
+& 'C:\Program Files\nodejs\node.exe' .\scripts\build-client.mjs          # 构建 lib/client.js
+& 'C:\Program Files\nodejs\node.exe' .\src\model\tests\run.js            # 38 项 3D 测试
+& 'C:\Program Files\nodejs\node.exe' .\src\archive\tests\run-tests.mjs   # 28 项压缩包测试
+& 'C:\Program Files\nodejs\node.exe' .\src\ui\smoke.mjs                  # UI 冒烟（假 React）
+& 'C:\Program Files\nodejs\node.exe' .\tools\smoke.mjs                   # 组装后的 bundle 冒烟
+& 'C:\Program Files\nodejs\node.exe' .\skeleton\verify.mjs .             # 契约静态校验
+```
+
+## 实现要点
+
+- 浏览器 bundle 是**手写的 classic script**：`window.__ModuleLoader__.load({ id, factory })`，
+  `id` 必须等于包名；`factory(require)` 里只 `require` 平台冻结表（react / react-dom /
+  `@deepseek-ai/dsh-client-ui-primitives` 等 9 个 key），不引入任何动态包。
+- 硬依赖只有 `slots` 服务；`documentPreviews` 与 `locale` 用 `ctx.inject([...])` 软等待——
+  这样即使内置文档预览被禁用，本插件也只是休眠，不会把整页启动拖垮（DSH 页面 boot 是"全有或全无"）。
+- 每个格式族的注册都是两处：`ctx.documentPreviews.register({ id, extensions, binaryExtensions,
+  priority, title, loading, wrap })` + `ctx.slots.register("sidebar.right.tab.document", { key: id })`，
+  两处都用同一个 id，且都包在 `ctx.effect` 里以便 HMR 回收。
+- 全部解析器都是纯 JS / Web 标准 API（`DecompressionStream`、`TextDecoder`、`FontFace`、Blob URL），
+  没有 Node 内置模块，也没有第三方依赖。
 
 ## 测试用 DSH 实例（E2E）
 

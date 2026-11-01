@@ -19,7 +19,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const pkgRoot = path.resolve(here, '..', 'pkg');
+const pkgRoot = path.resolve(here, '..');
 const pkgJson = JSON.parse(fs.readFileSync(path.join(pkgRoot, 'package.json'), 'utf8'));
 const PKG_NAME = pkgJson.name;
 

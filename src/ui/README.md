@@ -1,4 +1,4 @@
-# `pkg/src/ui` — 浏览器端预览正文（dsh-preview-extra）
+# `src/ui` — 浏览器端预览正文（dsh-preview-extra）
 
 本目录实现右侧栏「文档预览」标签页里的 5 类自定义正文：3D 模型、压缩包、媒体、字体、字幕。
 它们被 `src/client/main.js` 注册进 `@deepseek-ai/dsh-client-ui-sidebar-documentpreview`
@@ -140,15 +140,15 @@ font 样张、subtitle 列表/原文）。文件名优先取 `useTabInfo().tab.t
 
 ```powershell
 # 语法
-node --check pkg/src/ui/views.js
+node --check src/ui/views.js
 
 # 冒烟：假 React 运行时渲染 5 个 body，断言导出、locale key 对齐、
 # 扩展名覆盖、tr key 存在，以及 model/archive(text/image/encrypted/unsupported/empty)/
 # media/font/subtitle(srt/vtt/ass) 的主要状态
-node pkg/src/ui/smoke.mjs
+node src/ui/smoke.mjs
 
 # 集成：views.js 能通过 scripts/build-client.mjs 组装进 lib/client.js（无 ESM 残留）
-node pkg/scripts/build-client.mjs
+node scripts/build-client.mjs
 ```
 
 当前结果：`node --check` 通过；`smoke.mjs` 输出

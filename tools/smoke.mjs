@@ -33,7 +33,7 @@ const getArg = (name, fallback) => {
   const i = args.indexOf(name);
   return i >= 0 ? args[i + 1] : fallback;
 };
-const bundlePath = path.resolve(getArg('--bundle', path.join(repoRoot, 'pkg', 'lib', 'client.js')));
+const bundlePath = path.resolve(getArg('--bundle', path.join(repoRoot, 'lib', 'client.js')));
 const fixturesDir = path.resolve(getArg('--fixtures', path.join(repoRoot, '..', '_fixtures')));
 const quiet = args.includes('--quiet');
 

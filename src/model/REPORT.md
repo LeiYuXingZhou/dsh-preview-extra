@@ -1,6 +1,6 @@
 # 3D 模型解析 + Canvas2D 软件渲染器（task-3 报告）
 
-> 位置：`dsh-preview-extra/pkg/src/model/`
+> 位置：`dsh-preview-extra/src/model/`
 > 性质：纯 ESM，零第三方依赖，浏览器 / Node 24 均可运行；不碰 React、不在模块顶层读取 DOM 全局。
 > 当前支持格式：**STL（binary/ascii）、OBJ、PLY（ascii / binary_little_endian）**；3MF/GLB 给出"暂不支持"的可读错误。
 
@@ -141,7 +141,7 @@ const view = createModelView({ canvas, model, options: { wireframe: false, grid:
 命令（工作目录 `C:\Users\you\Documents\daily`）：
 
 ```powershell
-& 'C:\Program Files\nodejs\node.exe' dsh-preview-extra/pkg/src/model/tests/run.js
+& 'C:\Program Files\nodejs\node.exe' dsh-preview-extra/src/model/tests/run.js
 ```
 
 覆盖：手工构造的 ASCII STL / binary STL / OBJ（cube + pentagon + 错误样本）/ PLY ASCII / PLY binary_little_endian / 大端 PLY / 截断样本；解析数量、包围盒、三角化、负索引、错误文案；detect3d 嗅探与错误形状；渲染器纯函数（投影、适配、剔除、桶排序、光照、分批）；mock canvas 的渲染循环、线框开关、拖拽/滚轮/Shift/右键、resize、降级、批量化、0 尺寸、destroy、rAF 合并。
@@ -225,5 +225,5 @@ const view = createModelView({ canvas, model, options: { wireframe: false, grid:
 6. **canvas 尺寸为 0（侧栏未布局/隐藏）时跳过绘制**，等 ResizeObserver 触发的下一帧；Node 测试里 `renderNow()` 会返回 false。
 7. **三角形上限是软降级**：确实存在"抽样后模型看起来有空洞"的可能（密集网格抽样视觉上仍可辨识）；`renderBudget` 未单独设上限，降级后最多画 `maxTriangles` 个三角形。
 8. **测试是 Node 内 mock canvas**：没有真实像素断言，只验证渲染循环不抛错、调用次数、状态与纯函数数值；真实浏览器视觉仍需在 GUI 里点开文件人工确认。
-9. `pkg/src/model/package.json` 仅为 Node 测试加 `"type":"module"`；若 lead 的拼接脚本遍历目录，请只处理 6 个 `.js` 源文件，忽略该 package.json 与 `tests/`。
+9. `src/model/package.json` 仅为 Node 测试加 `"type":"module"`；若 lead 的拼接脚本遍历目录，请只处理 6 个 `.js` 源文件，忽略该 package.json 与 `tests/`。
 10. 后续可扩展：3MF（zip 容器，需 archive 模块）、GLB（二进制 JSON+buffer）、PLY 大端、点云（用点精灵）、OBJ 平滑法线/材质。

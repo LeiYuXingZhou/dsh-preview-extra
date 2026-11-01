@@ -2,7 +2,7 @@
 
 这是一个**能真正被 DSH 加载**的最小第三方客户端插件包：一个 `package.json`、一个
 no-op 宿主半侧、一个手写 `__ModuleLoader__.load(...)` 浏览器 bundle，没有构建工具、
-没有 npm 依赖、没有网络。可直接复制为 `dsh-preview-extra/pkg/` 的基线。
+没有 npm 依赖、没有网络。可直接复制为 `dsh-preview-extra/` 的基线。
 
 契约细节与全部 `file:line` 依据见 [`../notes/module-contract.md`](../notes/module-contract.md)。
 
@@ -126,7 +126,7 @@ lead 用更宽权限执行，或交给用户手动做。
 
 ## 4. 提成正式包时的改名清单
 
-本骨架叫 `dsh-preview-extra-skeleton`，与 `dsh-preview-extra/pkg/` **不是**同一个包，
+本骨架叫 `dsh-preview-extra-skeleton`，与 `dsh-preview-extra/` **不是**同一个包，
 两者同时挂载不会冲突（包名不同）。若把它并入 `pkg/`：
 
 1. `package.json` 的 `name` 改成 `dsh-preview-extra`；

@@ -21,7 +21,7 @@ const arg = (name, fallback) => {
 };
 
 const base = arg('--base', 'http://127.0.0.1:1890');
-const file = path.resolve(arg('--file', path.join(repoRoot, 'pkg', 'lib', 'client.js')));
+const file = path.resolve(arg('--file', path.join(repoRoot, 'lib', 'client.js')));
 
 function framedHash(domain, parts) {
   const hash = createHash('sha1').update(domain).update('\0');

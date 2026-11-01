@@ -1,5 +1,5 @@
 // tests/run-tests.mjs — 压缩包解析模块的 Node 24 测试脚本（无第三方依赖）。
-// 运行：node dsh-preview-extra/pkg/src/archive/tests/run-tests.mjs
+// 运行：node dsh-preview-extra/src/archive/tests/run-tests.mjs
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';

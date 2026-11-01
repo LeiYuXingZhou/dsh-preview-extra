@@ -1,5 +1,5 @@
 // tests/run.js — 无依赖 Node 测试脚本。
-// 运行：& 'C:\Program Files\nodejs\node.exe' dsh-preview-extra/pkg/src/model/tests/run.js
+// 运行：& 'C:\Program Files\nodejs\node.exe' dsh-preview-extra/src/model/tests/run.js
 // 覆盖：STL(ascii/binary) / OBJ / PLY(ascii/binary) 解析与容错、detect3d 分派、
 //       渲染器纯函数、mock canvas 渲染循环/交互/降级/destroy/重绘合并。
 

@@ -1,6 +1,6 @@
 # 压缩包预览模块报告（task-4 / archive-reader）
 
-无依赖、纯 ESM、浏览器与 Node 24 通用的归档解析模块，位于 `dsh-preview-extra/pkg/src/archive/`。
+无依赖、纯 ESM、浏览器与 Node 24 通用的归档解析模块，位于 `dsh-preview-extra/src/archive/`。
 库代码只使用 Web 标准 API（`DecompressionStream` / `TextDecoder` / `Uint8Array` / `Date`），
 **不 import 任何外部包、不 import `node:*`**，只有命名导出（无 `export default`、无 `export {}` 列表），
 同目录相对路径 `from './xxx.js'`，便于 lead 的简易 ESM→CJS 拼接脚本静态提取。
