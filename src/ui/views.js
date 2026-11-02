@@ -16,6 +16,14 @@
 import { parseModel } from '../model/detect3d.js';
 import { buildScene, createModelView } from '../model/renderer.js';
 import {
+  bindPreviewCss,
+  extraBodies,
+  extraCss,
+  extraDefinitions,
+  extraLocales,
+  EXTRA_PREVIEW_IDS,
+} from './extra-views.js';
+import {
   buildTree,
   decodeTextBytes,
   detect as detectArchive,
@@ -43,6 +51,7 @@ export const PREVIEW_IDS = Object.freeze({
   media: 'dsh-preview-extra/media',
   font: 'dsh-preview-extra/font',
   subtitle: 'dsh-preview-extra/subtitle',
+  ...EXTRA_PREVIEW_IDS,
 });
 
 /** 注入样式表的 id：client.js 与各 body 共享，重复注入会被跳过。 */
@@ -109,6 +118,9 @@ export const previewLocales = {
     'model.large': '模型较大（{n} 个三角形），渲染可能较慢；超过上限时会自动抽样降级',
     'model.warnings': '解析警告',
     'model.dimensions': '{x} × {y} × {z}',
+    'model.meshes': '网格',
+    'model.materials': '材质',
+    'model.animations': '动画',
 
     'title.archive': '压缩包',
     'archive.loading': '正在读取压缩包…',
@@ -211,6 +223,9 @@ export const previewLocales = {
     'model.large': 'Large model ({n} triangles); rendering may be slow and is downsampled above the limit',
     'model.warnings': 'Parse warnings',
     'model.dimensions': '{x} × {y} × {z}',
+    'model.meshes': 'Meshes',
+    'model.materials': 'Materials',
+    'model.animations': 'Animations',
 
     'title.archive': 'Archive',
     'archive.loading': 'Reading archive…',
@@ -288,6 +303,8 @@ export const previewLocales = {
     'subtitle.noCues': '(no cues to display)',
   },
 };
+Object.assign(previewLocales.zh, extraLocales.zh);
+Object.assign(previewLocales.en, extraLocales.en);
 
 // ---------------------------------------------------------------------------
 // 预览定义（client.js 直接展开给 ctx.documentPreviews.register）
@@ -297,9 +314,9 @@ export const previewDefinitions = [
   {
     id: PREVIEW_IDS.model,
     titleKey: 'title.model',
-    extensions: ['stl', 'obj', 'ply'],
-    // ASCII STL 也可是文本，但 PLY/STL 多为二进制：按二进制后缀抑制「纯文本」候选。
-    binaryExtensions: ['stl', 'ply'],
+    extensions: ['stl', 'obj', 'ply', 'gltf', 'glb'],
+    // ASCII STL / glTF JSON 仍可能是文本；二进制网格按后缀抑制「纯文本」候选。
+    binaryExtensions: ['stl', 'ply', 'glb'],
     loading: 'bytes-complete',
     wrap: false,
   },
@@ -335,13 +352,14 @@ export const previewDefinitions = [
     loading: 'bytes-complete',
     wrap: false,
   },
+  ...extraDefinitions,
 ];
 
 // ---------------------------------------------------------------------------
 // 注入样式（类前缀 dshpx-；颜色全部走 currentColor / color-mix，跟随明暗主题）
 // ---------------------------------------------------------------------------
 
-export const previewCss = `
+const previewCssBase = `
 .dshpx-root {
   box-sizing: border-box;
   position: relative;
@@ -807,6 +825,8 @@ export const previewCss = `
   user-select: text;
 }
 `;
+export const previewCss = previewCssBase + extraCss;
+bindPreviewCss(previewCss);
 
 // ---------------------------------------------------------------------------
 // 通用小工具
@@ -1279,6 +1299,15 @@ export function ModelPreviewBody(props) {
         h(Badge, { tone: 'accent' }, summary ? summary.format : '3D'),
         summary ? h(Stat, { label: tr(t, 'model.triangles', '三角形'), value: summary.triangles }) : null,
         summary ? h(Stat, { label: tr(t, 'model.vertices', '顶点'), value: summary.vertices }) : null,
+        summary && model.meta && Number.isFinite(model.meta.meshes)
+          ? h(Stat, { label: tr(t, 'model.meshes', '网格'), value: model.meta.meshes })
+          : null,
+        summary && model.meta && Number.isFinite(model.meta.materials)
+          ? h(Stat, { label: tr(t, 'model.materials', '材质'), value: model.meta.materials })
+          : null,
+        summary && model.meta && model.meta.animations
+          ? h(Stat, { label: tr(t, 'model.animations', '动画'), value: model.meta.animations })
+          : null,
         summary
           ? h(Stat, { label: tr(t, 'model.bounds', '包围盒'), value: summary.dimensions, title: summary.dimensions })
           : null),
@@ -2399,4 +2428,5 @@ export const previewBodies = {
   [PREVIEW_IDS.media]: MediaPreviewBody,
   [PREVIEW_IDS.font]: FontPreviewBody,
   [PREVIEW_IDS.subtitle]: SubtitlePreviewBody,
+  ...extraBodies,
 };

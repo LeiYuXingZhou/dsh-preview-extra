@@ -1,20 +1,21 @@
 # `src/ui` — 浏览器端预览正文（dsh-preview-extra）
 
-本目录实现右侧栏「文档预览」标签页里的 5 类自定义正文：3D 模型、压缩包、媒体、字体、字幕。
+本目录实现右侧栏「文档预览」标签页里的自定义正文：3D 模型、压缩包、媒体、字体、字幕，以及 `extra-views.js` 里的 TOML、Intel HEX、JCAMP-DX、VCD、KiCad、DFU。
 它们被 `src/client/main.js` 注册进 `@deepseek-ai/dsh-client-ui-sidebar-documentpreview`
 提供的 `ctx.documentPreviews` 与 keyed 子 slot `sidebar.right.tab.document`。
 
 | 文件 | 作用 |
 |---|---|
-| `views.js` | **唯一交付的运行时模块**。单文件、ESM 具名导出、无 JSX、无 default export；由 `scripts/build-client.mjs` 内联进 `lib/client.js` 的 factory 作用域。 |
+| `views.js` | 原有预览正文。ESM 具名导出、无 JSX、无 default export；由 `scripts/build-client.mjs` 内联进 `lib/client.js`。 |
+| `extra-views.js` | TOML / Intel HEX / JCAMP-DX / VCD / KiCad / DFU 正文，由 `views.js` 合并进同一套定义、文案和样式。 |
 | `smoke.mjs` | 开发期冒烟测试（假 React 运行时 + 真实 model/archive fixture），不属于运行时依赖，不会被 build 打包。 |
 
 ## 导出清单
 
 | 导出 | 说明 |
 |---|---|
-| `previewLocales` | `{ zh, en }` 两套同 key 文案（95 个 key），注册到 locale 命名空间 `dshPreviewExtra`。 |
-| `previewDefinitions` | 5 条预览定义：`{ id, titleKey, extensions, binaryExtensions?, loading:'bytes-complete', wrap:false }`。 |
+| `previewLocales` | `{ zh, en }` 两套同 key 文案，注册到 locale 命名空间 `dshPreviewExtra`。 |
+| `previewDefinitions` | 预览定义：`{ id, titleKey, extensions, binaryExtensions?, loading:'bytes-complete', wrap:false }`。 |
 | `previewCss` | 一段注入 `<style>` 的 CSS 字符串，类前缀 `dshpx-`，颜色走 `currentColor` / `color-mix`，适配明暗主题。 |
 | `PREVIEW_IDS` | `{ model, archive, media, font, subtitle }` 的渲染器 id，避免与 client.js 里的字符串漂移。 |
 | `previewBodies` | `id → 组件` 映射（等价于下面的 5 个组件，便于注册时按 id 查表）。 |

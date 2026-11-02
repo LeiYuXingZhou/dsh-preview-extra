@@ -30,24 +30,11 @@ import {
   previewLocales,
   previewDefinitions,
   previewCss,
-  ModelPreviewBody,
-  ArchivePreviewBody,
-  MediaPreviewBody,
-  FontPreviewBody,
-  SubtitlePreviewBody,
+  previewBodies,
 } from '../ui/views.js';
 
 /** Locale namespace owned by this plugin. */
 const LOCALE_NS = 'dshPreviewExtra';
-
-/** Keyed body component per preview implementation id. */
-const BODY_BY_ID = {
-  'dsh-preview-extra/model': ModelPreviewBody,
-  'dsh-preview-extra/archive': ArchivePreviewBody,
-  'dsh-preview-extra/media': MediaPreviewBody,
-  'dsh-preview-extra/font': FontPreviewBody,
-  'dsh-preview-extra/subtitle': SubtitlePreviewBody,
-};
 
 /** Cordis services that must exist before `apply` runs. */
 const inject = ['slots'];
@@ -86,7 +73,7 @@ function registerPreviews(scope) {
   scope.effect(() => scope.locale.register(LOCALE_NS, previewLocales), 'dsh-preview-extra: dictionaries');
 
   for (const definition of previewDefinitions) {
-    const body = BODY_BY_ID[definition.id];
+    const body = previewBodies[definition.id];
     if (body === undefined) continue;
 
     const metadata = {

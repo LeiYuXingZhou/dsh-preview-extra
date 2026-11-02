@@ -4,13 +4,14 @@ import { decodeLatin1, toUint8 } from './common.js';
 import { isBinarySTL, parseSTL } from './stl.js';
 import { parseOBJ } from './obj.js';
 import { isPLY, parsePLY } from './ply.js';
+import { isGlb, parseGltfMesh } from '../formats/gltf.js';
 
 /** 当前支持的扩展名（供插件注册 documentPreviews 使用）。 */
-export const SUPPORTED_EXTENSIONS = ['stl', 'obj', 'ply'];
+export const SUPPORTED_EXTENSIONS = ['stl', 'obj', 'ply', 'gltf', 'glb'];
 
 /** 预留但暂不支持的格式，给出友好提示而不是"未知格式"。 */
 const UNSUPPORTED = {
-  '3mf': '3MF', glb: 'GLB', gltf: 'glTF', '3ds': '3DS', fbx: 'FBX', dae: 'DAE',
+  '3mf': '3MF', '3ds': '3DS', fbx: 'FBX', dae: 'DAE',
   off: 'OFF', amf: 'AMF', stp: 'STEP', step: 'STEP', iges: 'IGES', x3d: 'X3D', wrl: 'VRML',
 };
 
@@ -29,6 +30,7 @@ function extensionOf(filename) {
 export function sniffFormat(bytes) {
   const u8 = toUint8(bytes);
   if (u8.byteLength < 3) return null;
+  if (isGlb(u8)) return 'glb';
   if (isPLY(u8)) return 'ply';
   const head = decodeLatin1(u8, 0, Math.min(u8.byteLength, 4096)).replace(/^\uFEFF/, '');
   const lower = head.toLowerCase();
@@ -45,7 +47,7 @@ export function sniffFormat(bytes) {
  * @param {string} filename 文件名或路径（用于扩展名分派，可为空）
  * @param {Uint8Array|ArrayBuffer} bytes 文件字节
  * @returns {{
- *   format: 'stl'|'obj'|'ply'|'unknown',
+ *   format: 'stl'|'obj'|'ply'|'gltf'|'glb'|'unknown',
  *   variant?: string,
  *   triangles: { positions: Float32Array, normals?: Float32Array, count: number },
  *   bounds: { min: number[], max: number[] },
@@ -72,11 +74,13 @@ export function parseModel(filename, bytes) {
 
   // 已知但暂不支持的格式：明确提示（不尝试按内容硬解）
   if (ext in UNSUPPORTED) {
-    return fail('unknown', `暂不支持 .${ext} 格式（${UNSUPPORTED[ext]}）；当前支持 STL / OBJ / PLY`, ext);
+    return fail('unknown', `暂不支持 .${ext} 格式（${UNSUPPORTED[ext]}）；当前支持 STL / OBJ / PLY / glTF / GLB`, ext);
   }
   if (ext === 'stl') format = 'stl';
   else if (ext === 'obj') format = 'obj';
   else if (ext === 'ply') format = 'ply';
+  else if (ext === 'gltf' || ext === 'glb') format = 'gltf';
+  else if (sniffed === 'glb') format = 'gltf';
   else if (sniffed === 'ply') format = 'ply';
   else if (sniffed === 'stl-ascii' || sniffed === 'stl-binary') format = 'stl';
   else if (sniffed === 'obj') format = 'obj';
@@ -90,7 +94,8 @@ export function parseModel(filename, bytes) {
     let raw;
     if (format === 'stl') raw = parseSTL(u8);
     else if (format === 'obj') raw = parseOBJ(u8);
-    else raw = parsePLY(u8);
+    else if (format === 'ply') raw = parsePLY(u8);
+    else raw = parseGltfMesh(u8);
 
     return {
       format: raw.format,

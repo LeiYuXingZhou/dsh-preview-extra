@@ -1,7 +1,8 @@
 # dsh-preview-extra — DSH 右侧栏文档预览扩展
 
-给 DSH（DeepSeek Harness 0.2.0-rc.2）右侧栏的**文档预览**加 5 类格式族：
-**3D 模型（STL/OBJ/PLY）**、**压缩包（zip/tar/gz）**、**音视频**、**字体**、**字幕**。
+给 DSH（DeepSeek Harness 0.2.0-rc.2）右侧栏的**文档预览**增加这些格式：
+**3D 模型（STL/OBJ/PLY/glTF/GLB）**、**压缩包（zip/tar/gz）**、**音视频**、**字体**、**字幕**、
+**TOML**、**Intel HEX**、**JCAMP-DX**、**VCD**、**KiCad 原理图/电路板**、**DFU**。
 纯客户端插件、零第三方依赖、无网络请求；所有预览都注册进内置的
 `@deepseek-ai/dsh-client-ui-sidebar-documentpreview` 文档 tab，与内置的
 Markdown / 代码 / 图片 / PDF / Office 预览共享同一套打开方式、路径头、刷新与「打开方式」菜单。
@@ -13,23 +14,29 @@ Markdown / 代码 / 图片 / PDF / Office 预览共享同一套打开方式、�
 
 | 项目 | 结果 |
 | --- | --- |
-| 构建产物 | `lib/client.js`（约 230 KiB，15 个内部模块，单文件 classic script） |
+| 构建产物 | `lib/client.js`（约 362 KiB，24 个内部模块，单文件 classic script） |
 | 契约静态校验 | `skeleton/verify.mjs` → **34/34** |
-| 组装后冒烟（假 React + 假 Cordis ctx） | `tools/smoke.mjs` → 全部通过（5 个 body 用真实 fixture 渲染） |
-| 解析器单测 | 3D **38/38**、压缩包 **28/28** |
+| 组装后冒烟（假 React + 假 Cordis ctx） | `tools/smoke.mjs` → 全部通过（每个预览正文都能挂上） |
+| 解析器单测 | 3D **38/38**、压缩包 **28/28**、新格式 **13/13** |
 | 真实 GUI E2E（无头 Chrome + CDP） | STL 3D、ZIP 条目树 + 条目文本、TTF 字体样张、WAV 播放器、SRT 字幕、7z 不支持提示 —— 全部正常，截图见 `shots/` |
 
 ## 新增支持的格式
 
 | 类别 | 后缀 | 预览内容 |
 | --- | --- | --- |
-| 3D 模型 | `stl`（ASCII/二进制）、`obj`、`ply`（ASCII / binary_little_endian） | Canvas2D 软件渲染：拖拽旋转、滚轮缩放、右键/Shift 平移、双击复位、线框开关、包围盒/三角形/顶点统计；>30 万三角形自动抽样降级 |
+| 3D 模型 | `stl`（ASCII/二进制）、`obj`、`ply`（ASCII / binary_little_endian）、`gltf`、`glb` | Canvas2D 软件渲染：拖拽旋转、滚轮缩放、右键/Shift 平移、双击复位、线框开关、包围盒/三角形/顶点统计；glTF/GLB 读取内嵌 buffer 和节点变换；>30 万三角形自动抽样降级 |
 | 压缩包 | `zip`、`jar`、`war`、`apk`、`tar`、`gz`、`tgz`、`tar.gz` | 条目树（名称/大小/时间/方法），点击条目查看文本（带行号，最多 200KB）、图片、或二进制说明；GBK 文件名兜底；防 zip bomb 限额 |
 | 压缩包（仅识别） | `7z`、`rar`、`xz`、`bz2`、`zst` | 显示格式与"请先解压为 zip/tar"的提示（浏览器端没有对应解压 API） |
 | 音频 | `mp3`、`wav`、`ogg`、`oga`、`m4a`、`aac`、`flac`、`opus` | 原生 `<audio>` 播放器；显示大小/MIME |
 | 视频 | `mp4`、`webm`、`m4v`、`mov`、`mkv` | 原生 `<video>` 播放器；显示大小/MIME |
 | 字体 | `ttf`、`otf`、`woff`、`woff2` | FontFace 加载后的样张：中英文 pangram、大小写字母表、标点、字号阶梯 |
 | 字幕 | `srt`、`vtt`、`ass`、`ssa` | 时间轴字幕列表（起止时间 + 文本）、条数/编码/总时长，可切换原始文本 |
+| TOML | `toml` | 按表展开的键、类型和值；支持数组、内联表、`[表]` 和 `[[表数组]]` |
+| Intel HEX | `hex` | 记录校验、线性/段地址合并、入口地址，以及按地址分段的十六进制转储 |
+| JCAMP-DX | `jdx`、`dx` | 谱图折线（`(X++(Y..Y))`、峰表、PAC 压缩）和表头 |
+| VCD | `vcd` | 数字波形：时间刻度、作用域、0/1/x/z 和总线值 |
+| KiCad | `kicad_sch`、`kicad_pcb` | 原理图（导线、符号、针脚）或电路板（走线、过孔、焊盘、板框）；滚轮缩放、拖拽平移 |
+| DFU | `dfu` | USB DFU 后缀（厂商/产品 ID、版本、CRC）和 DfuSe 多镜像的地址与大小 |
 
 打开方式：右侧栏「文件」tab 里点任意文件；聊天里的文件卡片、交付物卡片也会走同一预览。
 
@@ -55,13 +62,15 @@ dsh-preview-extra/
   cordis.patch.yml      ← bundle patch：安装后自动插入 Loader 行
   lib/index.js          ← 宿主半侧：no-op cordis 插件（全部逻辑在浏览器侧）
   lib/client.js         ← 构建产物（scripts/build-client.mjs 生成，不要手改）
-  src/client/main.js    ← 浏览器入口：注册 5 个 preview + keyed body + locale + 样式
-  src/ui/views.js       ← 5 个预览组件 + 中英文案 + CSS + previewDefinitions
-  src/model/            ← STL/OBJ/PLY 解析 + Canvas2D 软件渲染器（纯 ESM，无 DOM 顶层依赖）
+  src/client/main.js    ← 浏览器入口：按 previewDefinitions 注册 preview + keyed body + locale + 样式
+  src/ui/views.js       ← 原有预览组件 + 中英文案 + CSS + previewDefinitions
+  src/ui/extra-views.js ← TOML / Intel HEX / JCAMP-DX / VCD / KiCad / DFU 正文
+  src/formats/          ← 上述格式和 glTF/GLB 的纯解析器
+  src/model/            ← STL/OBJ/PLY/glTF 网格 + Canvas2D 软件渲染器（纯 ESM，无 DOM 顶层依赖）
   src/archive/          ← zip/tar/gzip 解析 + 魔数识别 + 限额（纯 ESM，无 Node API）
   scripts/build-client.mjs ← 手写"打包器"：把 src/** 的 ESM 拼成 __ModuleLoader__.load 的 factory
   scripts/install.mjs   ← 安装/卸载到任意 profile（复制包 + 追加 patch 行）
-  tools/smoke.mjs       ← 无浏览器冒烟：加载真实 bundle 并渲染 5 个 body
+  tools/smoke.mjs       ← 无浏览器冒烟：加载真实 bundle 并渲染每个预览正文
   tools/cdp.mjs         ← 无头 Chrome CDP 驱动（导航/求值/截图）
   tools/probe-bundle.mjs← 探测某个 DSH 实例是否已提供本插件 bundle
   tools/fixtures-gen.mjs← 生成 E2E 样例文件（STL/OBJ/PLY/ZIP/TAR/GZ/WAV/SRT…）
@@ -106,8 +115,9 @@ DSH 的「设置 → 插件 → 添加插件」支持**包名 / GitHub 仓库地
 ## 快速使用
 
 1. 在 DSH 右侧栏点「文件」tab（或聊天里的文件/交付物卡片）；
-2. 点开以下任意文件即可看到新预览：`.stl`、`.obj`、`.ply`、`.zip`、`.tar`、`.tar.gz`、
-   `.mp3`/`.wav`/`.mp4`/`.webm`、`.ttf`/`.otf`/`.woff2`、`.srt`/`.vtt`/`.ass`；
+2. 点开以下任意文件即可看到新预览：`.stl`、`.obj`、`.ply`、`.gltf`、`.glb`、`.zip`、`.tar`、`.tar.gz`、
+   `.mp3`/`.wav`/`.mp4`/`.webm`、`.ttf`/`.otf`/`.woff2`、`.srt`/`.vtt`/`.ass`、
+   `.toml`、`.hex`、`.jdx`、`.dx`、`.vcd`、`.kicad_sch`、`.kicad_pcb`、`.dfu`；
 3. `.7z`/`.rar`/`.xz`/`.bz2`/`.zst` 会显示"暂不支持，请先解压为 zip/tar"的提示。
 
 ## 重新构建 / 手动安装 / 回滚
@@ -130,6 +140,7 @@ $node = 'C:\Program Files\nodejs\node.exe'
 ```powershell
 & 'C:\Program Files\nodejs\node.exe' .\scripts\build-client.mjs          # 构建 lib/client.js
 & 'C:\Program Files\nodejs\node.exe' .\src\model\tests\run.js            # 38 项 3D 测试
+& 'C:\Program Files\nodejs\node.exe' .\src\formats\tests\run.mjs         # TOML / HEX / glTF / JCAMP / VCD / KiCad / DFU
 & 'C:\Program Files\nodejs\node.exe' .\src\archive\tests\run-tests.mjs   # 28 项压缩包测试
 & 'C:\Program Files\nodejs\node.exe' .\src\ui\smoke.mjs                  # UI 冒烟（假 React）
 & 'C:\Program Files\nodejs\node.exe' .\tools\smoke.mjs                   # 组装后的 bundle 冒烟
@@ -166,6 +177,11 @@ $env:DSH_HOME = 'C:\Users\you\Documents\daily\_dsh_test'
 - 压缩包：5000 条目 / 单条目 32 MB / 累计 128 MB 限额；文本条目最多 200 KB。
 - 7z/rar/xz/bz2/zst 仅识别提示；分卷 ZIP、加密 ZIP 条目不可读（显示原因）。
 - 音视频编解码依赖浏览器；MKV/MOV 视编码而定。
-- 3D：Canvas2D 软件渲染，无 WebGL；>30 万三角形自动降级；PLY 仅 little-endian；不支持 3MF/GLB/FBX/STEP。
+- 3D：Canvas2D 软件渲染，无 WebGL；>30 万三角形自动降级；PLY 仅 little-endian。glTF/GLB 只画三角形（点/线会跳过），外部 `.bin`、蒙皮和动画不会套用。不支持 3MF/FBX/STEP。
+- Intel HEX 按记录合并地址空间，单段转储只显示开头一段。
+- JCAMP-DX 不展开 NTUPLES 多页；压缩编码支持 SQZ/DIF/DUP。
+- VCD 最多画 40 条信号，超长跳变会截断。
+- KiCad 是几何预览：不跑 ERC/DRC，不展开封装焊盘网表，复杂板会限制图元数量。
+- DFU 展示镜像布局和 CRC，不模拟烧录。
 - 字幕：ASS/SSA 样式与定位忽略；1 MB / 3000 条上限。
 - 字体：不解析字形表；TTC 可能加载失败。

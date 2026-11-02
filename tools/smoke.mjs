@@ -253,6 +253,12 @@ const BODY_CASES = {
   'dsh-preview-extra/media': { file: 'tone.wav', bytes: () => fixture('tone.wav') },
   'dsh-preview-extra/font': { file: 'sample.ttf', bytes: () => fixture('sample.ttf') },
   'dsh-preview-extra/subtitle': { file: 'demo.srt', bytes: () => fixture('demo.srt') },
+  'dsh-preview-extra/toml': { file: 'demo.toml', bytes: () => new TextEncoder().encode('name = "demo"\n') },
+  'dsh-preview-extra/ihex': { file: 'fw.hex', bytes: () => new TextEncoder().encode(':00000001FF\n') },
+  'dsh-preview-extra/jcamp': { file: 'spec.jdx', bytes: () => new TextEncoder().encode('##TITLE=Smoke\n##END=\n') },
+  'dsh-preview-extra/vcd': { file: 'wave.vcd', bytes: () => new TextEncoder().encode('$timescale 1ns $end\n$var wire 1 ! clk $end\n') },
+  'dsh-preview-extra/kicad': { file: 'a.kicad_sch', bytes: () => new TextEncoder().encode('(kicad_sch (version 1) (wire (pts (xy 0 0) (xy 1 0))))') },
+  'dsh-preview-extra/dfu': { file: 'fw.dfu', bytes: () => new TextEncoder().encode('not-a-dfu') },
 };
 
 // ----------------------------------------------------------------------- main
@@ -360,7 +366,7 @@ async function run() {
     if (!bodies.has(def.id)) fail(`preview ${def.id} has no keyed body`);
   }
   const extensions = new Set(previews.flatMap((d) => d.extensions));
-  for (const expected of ['stl', 'obj', 'ply', 'zip', 'tar', 'gz', '7z', 'rar', 'ttf', 'woff2', 'wav', 'mp3', 'mp4', 'srt', 'vtt']) {
+  for (const expected of ['stl', 'obj', 'ply', 'gltf', 'glb', 'zip', 'tar', 'gz', '7z', 'rar', 'ttf', 'woff2', 'wav', 'mp3', 'mp4', 'srt', 'vtt', 'toml', 'hex', 'jdx', 'dx', 'vcd', 'kicad_sch', 'kicad_pcb', 'dfu']) {
     if (!extensions.has(expected)) fail(`missing extension claim: ${expected}`);
   }
   if (!failures) ok(`extension claims cover ${extensions.size} suffixes`);

@@ -2,7 +2,7 @@
 
 > 位置：`dsh-preview-extra/src/model/`
 > 性质：纯 ESM，零第三方依赖，浏览器 / Node 24 均可运行；不碰 React、不在模块顶层读取 DOM 全局。
-> 当前支持格式：**STL（binary/ascii）、OBJ、PLY（ascii / binary_little_endian）**；3MF/GLB 给出"暂不支持"的可读错误。
+> 当前支持格式：**STL（binary/ascii）、OBJ、PLY（ascii / binary_little_endian）、glTF / GLB**；3MF 等仍给出"暂不支持"的可读错误。glTF 解析在 `src/formats/gltf.js`。
 
 ## 1. 文件清单（需要打进客户端 bundle 的只有前 6 个 .js）
 
@@ -132,7 +132,8 @@ const view = createModelView({ canvas, model, options: { wireframe: false, grid:
 | OBJ 索引越界 | `OBJ 解析失败：第 4 行的顶点索引 4 超出范围（当前共 3 个顶点）` |
 | PLY 大端 | `PLY 解析失败：暂不支持 binary_big_endian 字节序的 PLY（当前支持 ascii / binary_little_endian）` |
 | 未知扩展名/内容 | `无法识别的 3D 模型格式（扩展名 ".bin" 未知，内容也不是 STL/OBJ/PLY）` |
-| 3MF/GLB | `暂不支持 .3mf 格式（3MF）；当前支持 STL / OBJ / PLY` |
+| 3MF | `暂不支持 .3mf 格式（3MF）；当前支持 STL / OBJ / PLY / glTF / GLB` |
+| 损坏的 GLB | `GLB 解析失败：…`（扩展名是 .glb 时走 glTF 解析，不再当成未支持格式） |
 
 此外：头部三角形计数为 0 但长度自洽 → 按长度推断并 warning；尾部多余字节 → warning；ASCII 缺 `solid`/`facet` 但几何完整 → 仍解析并 warning；STL 头部法线为 0 向量 → 用几何法线补齐。
 

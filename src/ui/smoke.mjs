@@ -192,7 +192,10 @@ const enKeys = Object.keys(en).sort();
 assert.deepEqual(zhKeys, enKeys, 'zh/en locale keys must match');
 for (const key of zhKeys) assert.equal(typeof zh[key], 'string', 'zh text ' + key);
 
-const source = readFileSync(new URL('./views.js', import.meta.url), 'utf8');
+const source = [
+  readFileSync(new URL('./views.js', import.meta.url), 'utf8'),
+  readFileSync(new URL('./extra-views.js', import.meta.url), 'utf8'),
+].join('\n');
 const usedKeys = new Set();
 for (const match of source.matchAll(/tr\((?:t|null)\s*,\s*'([A-Za-z0-9_.]+)'/g)) usedKeys.add(match[1]);
 for (const key of usedKeys) {
@@ -206,6 +209,12 @@ const required = {
   media: ['mp3', 'wav', 'ogg', 'oga', 'm4a', 'aac', 'flac', 'opus', 'mp4', 'webm', 'm4v', 'mov', 'mkv'],
   font: ['ttf', 'otf', 'woff', 'woff2'],
   subtitle: ['srt', 'vtt', 'ass', 'ssa'],
+  toml: ['toml'],
+  ihex: ['hex'],
+  jcamp: ['jdx', 'dx'],
+  vcd: ['vcd'],
+  kicad: ['kicad_sch', 'kicad_pcb'],
+  dfu: ['dfu'],
 };
 for (const [group, extensions] of Object.entries(required)) {
   const def = views.previewDefinitions.find((item) => item.id === views.PREVIEW_IDS[group]);
@@ -444,12 +453,66 @@ for (const [name, Component] of [
   ['media', views.MediaPreviewBody],
   ['font', views.FontPreviewBody],
   ['subtitle', views.SubtitlePreviewBody],
+  ['toml', views.previewBodies[views.PREVIEW_IDS.toml]],
+  ['ihex', views.previewBodies[views.PREVIEW_IDS.ihex]],
+  ['jcamp', views.previewBodies[views.PREVIEW_IDS.jcamp]],
+  ['vcd', views.previewBodies[views.PREVIEW_IDS.vcd]],
+  ['kicad', views.previewBodies[views.PREVIEW_IDS.kicad]],
+  ['dfu', views.previewBodies[views.PREVIEW_IDS.dfu]],
 ]) {
   const view = await mount(Component, { content: undefined, ...tabProps('x'), t: undefined });
   await view.settle(3);
   assert.ok(view.tree, name + ' body renders with no content');
   assert.ok(findAll(view.tree, 'StatePanel').length >= 1, name + ' no-content panel');
   view.unmount();
+}
+
+const textOfBytes = (value) => new TextEncoder().encode(value);
+{
+  const samples = [
+    ['toml', 'app.toml', 'title = "demo"\ncount = 2\n[server]\nport = 8080\n'],
+    ['ihex', 'fw.hex', ':0400000001020304F2\n:00000001FF\n'],
+    ['jcamp', 'spec.jdx', '##TITLE=Demo\n##XUNITS=1/CM\n##YUNITS=ABSORBANCE\n##XFACTOR=1\n##YFACTOR=1\n##DELTAX=1\n##XYDATA=(X++(Y..Y))\n400 1 2 3\n##END=\n'],
+    ['vcd', 'wave.vcd', '$timescale 1 ns $end\n$scope module top $end\n$var wire 1 ! clk $end\n$upscope $end\n$enddefinitions $end\n#0\n0!\n#10\n1!\n'],
+    ['kicad', 'board.kicad_sch', '(kicad_sch (version 20231120) (wire (pts (xy 0 0) (xy 10 0))))'],
+    ['dfu', 'fw.dfu', null],
+  ];
+  for (const [group, fileName, text] of samples) {
+    let bytes = text == null ? null : textOfBytes(text);
+    if (group === 'dfu') {
+      const { crc32 } = await import('../formats/dfu.js');
+      const payload = Uint8Array.from([1, 2, 3, 4]);
+      const body = new Uint8Array(payload.length + 12);
+      body.set(payload, 0);
+      const view = new DataView(body.buffer);
+      view.setUint16(payload.length + 2, 0x1234, true);
+      view.setUint16(payload.length + 4, 0xabcd, true);
+      view.setUint16(payload.length + 6, 0x0110, true);
+      body[payload.length + 8] = 0x55;
+      body[payload.length + 9] = 0x46;
+      body[payload.length + 10] = 0x44;
+      body[payload.length + 11] = 16;
+      bytes = new Uint8Array(body.length + 4);
+      bytes.set(body, 0);
+      new DataView(bytes.buffer).setUint32(body.length, crc32(body), true);
+    }
+    const Component = views.previewBodies[views.PREVIEW_IDS[group]];
+    const view = await mount(Component, {
+      content: { kind: 'bytes', data: bytes },
+      ...tabProps(fileName),
+      t: undefined,
+    });
+    await view.settle();
+    assert.ok(!findAll(view.tree, 'StatePanel').some((el) => el.props.tone === 'error'), group + ' should parse');
+    const textOut = textOf(view.tree);
+    if (group === 'toml') assert.ok(textOut.includes('8080'), 'toml port');
+    if (group === 'ihex') assert.ok(textOut.includes('0x00000000') || textOut.toLowerCase().includes('00000000'), 'hex address');
+    if (group === 'jcamp') assert.ok(textOut.includes('Demo') || textOut.includes('1/CM'), 'jcamp meta');
+    if (group === 'vcd') assert.ok(textOut.includes('clk') || textOut.includes('1 ns'), 'vcd meta');
+    if (group === 'kicad') assert.ok(textOut.includes('原理图') || textOut.includes('导线'), 'kicad kind');
+    if (group === 'dfu') assert.ok(textOut.includes('0xABCD') || textOut.includes('0x1234'), 'dfu ids');
+    view.unmount();
+  }
 }
 
 console.log('smoke ok: exports, locales (' + zhKeys.length + ' keys), definitions, tr keys (' + usedKeys.size + ')');
