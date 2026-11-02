@@ -20,7 +20,7 @@ Markdown / 代码 / 图片 / PDF / Office 预览共享同一套打开方式、�
 | 契约静态校验 | `skeleton/verify.mjs` → **34/34** |
 | 组装后冒烟（假 React + 假 Cordis ctx） | `tools/smoke.mjs` → 全部通过（每个预览正文都能挂上） |
 | 解析器单测 | 3D **38/38**、压缩包 **28/28**、新格式 **13/13** |
-| 真实 GUI E2E（无头 Chrome + CDP） | STL 3D、ZIP 条目树 + 条目文本、TTF 字体样张、WAV 播放器、SRT 字幕、7z 不支持提示 —— 全部正常，截图见 `shots/` |
+| 真实 GUI E2E（无头 Chrome + CDP） | STL / GLB、ZIP 条目树与条目文本、WAV、SRT、7z 提示、TOML、Intel HEX、JCAMP-DX、VCD、KiCad 原理图与电路板、DFU —— 截图见 `shots/` |
 
 ## 新增支持的格式
 
@@ -55,6 +55,22 @@ Markdown / 代码 / 图片 / PDF / Office 预览共享同一套打开方式、�
 | SRT 字幕 | 7z 不支持提示 |
 | --- | --- |
 | ![SRT 字幕](shots/08-subtitle.png) | ![7z 提示](shots/06-7z-unsupported.png) |
+
+| 3D 模型（GLB） | TOML |
+| --- | --- |
+| ![GLB 3D 预览](shots/09-glb.png) | ![TOML](shots/10-toml.png) |
+
+| Intel HEX | JCAMP-DX |
+| --- | --- |
+| ![Intel HEX](shots/11-hex.png) | ![JCAMP-DX](shots/12-jcamp.png) |
+
+| VCD 波形 | KiCad 原理图 |
+| --- | --- |
+| ![VCD](shots/13-vcd.png) | ![KiCad 原理图](shots/14-kicad-sch.png) |
+
+| KiCad 电路板 | DFU |
+| --- | --- |
+| ![KiCad 电路板](shots/15-kicad-pcb.png) | ![DFU](shots/16-dfu.png) |
 
 ## 目录
 
