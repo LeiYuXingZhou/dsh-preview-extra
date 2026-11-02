@@ -1,7 +1,7 @@
 {
   "name": "dsh-preview-extra",
   "version": "0.1.0",
-  "description": "DSH web plugin: extra right-sidebar document previews — 3D models (STL/OBJ/PLY), archives (zip/tar/gz), media (audio/video), fonts, subtitles and more.",
+  "description": "DSH web plugin: extra right-sidebar document previews for 3D models (STL/OBJ/PLY/glTF/GLB), archives, media, fonts, subtitles, TOML, Intel HEX, JCAMP-DX, VCD, KiCad and DFU.",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -45,7 +45,15 @@
     "archive",
     "zip",
     "font",
-    "subtitle"
+    "subtitle",
+    "gltf",
+    "glb",
+    "toml",
+    "kicad",
+    "dfu",
+    "intel-hex",
+    "jcamp",
+    "vcd"
   ],
   "repository": {
     "type": "git",

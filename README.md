@@ -8,12 +8,14 @@
 Markdown / 代码 / 图片 / PDF / Office 预览共享同一套打开方式、路径头、刷新与「打开方式」菜单。
 
 本仓库根目录就是可安装的 DSH 插件包（`package.json` + `lib/` + `cordis.patch.yml`），
-因此可以直接在 DSH 的「添加插件」里用 GitHub 仓库地址安装。
+因此可以直接在 DSH 的「添加插件」里用 GitHub 仓库地址安装。发布包在
+[v0.1.0](https://github.com/LeiYuXingZhou/dsh-preview-extra/releases/tag/v0.1.0)。
 
 ## 状态
 
 | 项目 | 结果 |
 | --- | --- |
+| 版本 | `0.1.0`（[GitHub Release](https://github.com/LeiYuXingZhou/dsh-preview-extra/releases/tag/v0.1.0)） |
 | 构建产物 | `lib/client.js`（约 362 KiB，24 个内部模块，单文件 classic script） |
 | 契约静态校验 | `skeleton/verify.mjs` → **34/34** |
 | 组装后冒烟（假 React + 假 Cordis ctx） | `tools/smoke.mjs` → 全部通过（每个预览正文都能挂上） |
